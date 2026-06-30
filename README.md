@@ -17,6 +17,10 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/inhoolee/fedora-bootstra
 ## What it does
 
 - Refreshes DNF metadata.
+- Sets GNOME dark mode.
+- Renames Korean home directories to English names when present:
+  `바탕화면` to `Desktop`, `문서` to `Documents`, and `다운로드` to `Downloads`.
+- Deletes other top-level Korean-named home directories only when they are empty.
 - Adds basic DNF settings.
 - Enables RPM Fusion free and nonfree repositories.
 - Installs common CLI tools and developer utilities.
