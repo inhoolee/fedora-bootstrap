@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-readonly SCRIPT_NAME="$(basename "$0")"
+SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_NAME
 
 log() {
   printf '\n==> %s\n' "$*"
@@ -43,7 +44,7 @@ run_user() {
 }
 
 is_fedora() {
-  [[ -r /etc/os-release ]] && . /etc/os-release && [[ "${ID:-}" == "fedora" ]]
+  [[ -r /etc/os-release ]] && grep -qx 'ID=fedora' /etc/os-release
 }
 
 set_dark_mode() {
@@ -183,25 +184,81 @@ configure_dnf() {
   done
 }
 
+configure_bash_aliases() {
+  local bashrc="$HOME/.bashrc"
+  local marker="# fedora-bootstrap: modern cli aliases"
+
+  log "Configuring Bash aliases"
+  if [[ -f "$bashrc" ]] && grep -qxF "$marker" "$bashrc"; then
+    log "Bash modern CLI aliases are already configured"
+    return 0
+  fi
+
+  if [[ "${DRY_RUN:-0}" == "1" ]]; then
+    printf '[dry-run] append modern CLI aliases to %s\n' "$bashrc"
+    return 0
+  fi
+
+  {
+    printf '\n%s\n' "$marker"
+    printf "if command -v bat >/dev/null 2>&1; then\n"
+    printf "  alias cat='bat'\n"
+    printf "fi\n"
+    printf "if command -v btop >/dev/null 2>&1; then\n"
+    printf "  alias top='btop'\n"
+    printf "fi\n"
+    printf "if command -v delta >/dev/null 2>&1; then\n"
+    printf "  alias diff='delta'\n"
+    printf "fi\n"
+    printf "if command -v duf >/dev/null 2>&1; then\n"
+    printf "  alias df='duf'\n"
+    printf "fi\n"
+    printf "if command -v dust >/dev/null 2>&1; then\n"
+    printf "  alias du='dust'\n"
+    printf "fi\n"
+    printf "if command -v eza >/dev/null 2>&1; then\n"
+    printf "  alias ls='eza --group-directories-first'\n"
+    printf "  alias ll='eza -lh --git --group-directories-first'\n"
+    printf "  alias la='eza -lah --git --group-directories-first'\n"
+    printf "  alias lt='eza --tree --group-directories-first'\n"
+    printf "fi\n"
+    printf "if command -v rg >/dev/null 2>&1; then\n"
+    printf "  alias grep='rg'\n"
+    printf "fi\n"
+    printf "if command -v zoxide >/dev/null 2>&1; then\n"
+    printf "  eval \"\$(zoxide init bash)\"\n"
+    printf "fi\n"
+  } >>"$bashrc"
+}
+
 main() {
   local packages=(
+    bat
+    btop
     curl
     dnf-plugins-core
+    du-dust
+    duf
+    eza
     fastfetch
     fd-find
     flatpak
     fzf
     git
+    git-delta
     htop
     jq
     make
     neovim
     ripgrep
     ShellCheck
+    tealdeer
     tmux
     unzip
     vim
     wget
+    yq
+    zoxide
     zsh
   )
 
@@ -219,6 +276,7 @@ main() {
   configure_dnf
   enable_rpm_fusion
   dnf_install "${packages[@]}"
+  configure_bash_aliases
   enable_flathub
 
   log "Updating installed packages"

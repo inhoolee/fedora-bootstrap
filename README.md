@@ -24,6 +24,10 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/inhoolee/fedora-bootstra
 - Adds basic DNF settings.
 - Enables RPM Fusion free and nonfree repositories.
 - Installs common CLI tools and developer utilities.
+- Installs modern CLI tools including `bat`, `btop`, `duf`, `dust`, `eza`, `git-delta`,
+  `tealdeer`, `yq`, and `zoxide`.
+- Adds Bash aliases for modern replacements such as `cat`, `top`, `diff`, `df`, `du`,
+  `ls`, `grep`, and initializes `zoxide`.
 - Enables Flathub.
 - Updates installed packages.
 
